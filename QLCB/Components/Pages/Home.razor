@@ -1,0 +1,238 @@
+﻿@page "/"
+@using QLCB.Models
+@inject dbQLCVContext dbcontext
+@rendermode InteractiveServer
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+
+<!-- Sử dụng component HomeStyles từ thư viện QLCB -->
+<QLCB.Components.Pages.Style.HomeStyles></QLCB.Components.Pages.Style.HomeStyles>
+
+<h1>Danh Sách Các Việc Cần Làm</h1>
+<p style="font-size : 10px;"><b>Không Có Ngày Tháng Nghĩa Là Ngày Nào Cũng Làm !!!</b></p>
+<div class="search-container">
+    <RadzenTextBox @bind-Value="searchTerm" Placeholder="Tìm kiếm công việc..." class="search-input" Style="width: 300px;" Change="OnSearchChanged" />
+    <RadzenButton Text="Xóa Tìm Kiếm" ButtonStyle="ButtonStyle.Light" Click="@ClearSearch" class="clear-search-button" />
+</div>
+<!-- Grid hiển thị danh sách công việc -->
+<RadzenDataGrid @ref="dataGrid" Data="@filteredCongViecs" TItem="tbCongViec" ColumnWidth="200px" AllowPaging="true" PageSize="5">
+    
+    <Columns>
+        <RadzenDataGridColumn TItem="tbCongViec" Property="IdCongViec" Title="STT" Width="50px" />
+        <RadzenDataGridColumn TItem="tbCongViec" Property="TenCongViec" Title="Công Việc" Width="100px" />
+        <RadzenDataGridColumn TItem="tbCongViec" Property="NgayBD" Title="Bắt Đầu" Width="200px" />
+        <RadzenDataGridColumn TItem="tbCongViec" Property="NgayKT" Title="Kết Thúc" Width="200px" />
+
+        <!-- Cột Hành Động chứa các nút tương tác -->
+        <RadzenDataGridColumn Title="Hành Động">
+            <Template>
+                @{
+                    var congviec = (tbCongViec)context; // Cố gắng ép kiểu để sử dụng congviec trong template
+                }
+                <RadzenButton Icon="info" Text="Detail" ButtonStyle="ButtonStyle.Info" Click="@(() => NavigateToDetail(congviec))" />
+                <RadzenButton Icon="edit" Text="Sửa" ButtonStyle="ButtonStyle.Primary" Click="@(() => EditCongViec(congviec))" />
+                <RadzenButton Icon="delete" Text="Xóa" ButtonStyle="ButtonStyle.Danger" Click="@(() => ConfirmDelete(congviec))" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+<!-- Dialog để thêm công việc -->
+@if (isDialogVisible)
+{
+    <div class="dialog-overlay"></div> <!-- Overlay để làm mờ nền -->
+    <div class="dialog-container">
+        <h3 style="text-align:center;color:aqua;"><b>Thêm Công Việc</b></h3>
+        <div class="dialog-box">
+            <div>
+                <table class="form-table">
+                    <tr>
+                        <td><label>STT</label></td>
+                        <td><label>Công Việc</label></td>
+                        <td><label>Bắt Đầu</label></td>
+                        <td><label>Kết Thúc</label></td>
+                    </tr>
+                    <tr>
+                        <td><RadzenNumeric @bind-Value="currentCongViec.IdCongViec" class="input-field" Style="width:50px;" /></td>
+                        <td><RadzenTextBox @bind-Value="currentCongViec.TenCongViec" class="input-field" Style="width:100px;" /></td>
+                        <td><RadzenDatePicker @bind-Value="currentCongViec.NgayBD" class="input-field" Style="width:200px;" /></td>
+                        <td><RadzenDatePicker @bind-Value="currentCongViec.NgayKT" class="input-field" Style="width:200px;" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <label>Mô Tả</label>
+                            <RadzenTextArea @bind-Value="currentCongViec.Description" class="input-area" Style="width: 100%; height: auto;" aria-label="Auto-resize" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="button-group">
+                <RadzenButton Click="SaveCongViec" Text="Lưu" class="button-3d" ButtonStyle="ButtonStyle.Primary" />
+                <RadzenButton Click="CancelEdit" Text="Hủy" class="button-3d" ButtonStyle="ButtonStyle.Secondary" />
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Dialog xác nhận xóa công việc -->
+@if (isDeleteDialogVisible)
+{
+    <div class="dialog-overlay"></div> <!-- Overlay để làm mờ nền -->
+    <div class="dialog-container delete">
+        <div class="dialog-box">
+            <p>Bạn có chắc chắn muốn xóa?</p>
+            <div class="button-group">
+                <RadzenButton Click="DeleteConfirmed" Text="Có" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenButton Click="CancelDelete" Text="Không" ButtonStyle="ButtonStyle.Secondary" />
+            </div>
+        </div>
+    </div>
+}
+
+<p></p>
+<div class="add-button">
+    <RadzenButton Click="ShowAddCongViecDialog" Text="Thêm Công Việc" ButtonStyle="ButtonStyle.Primary" />
+</div>
+
+@code {
+    // Danh sách công việc
+    private List<tbCongViec> congviecs = new List<tbCongViec>();
+    // Công việc hiện tại đang chỉnh sửa
+    private tbCongViec currentCongViec = new tbCongViec();
+    // Biến để theo dõi trạng thái của dialog thêm công việc
+    private bool isDialogVisible = false;
+    private bool isEditMode = false;
+    private string errorMessage;
+    private RadzenDataGrid<tbCongViec> dataGrid;
+    // Biến để quản lý dialog chi tiết
+    private bool isDetailDialogVisible = false;
+    // Công việc sẽ bị xóa
+    private tbCongViec congviecToDelete;
+    // Biến để theo dõi trạng thái của dialog xác nhận xóa
+    private bool isDeleteDialogVisible = false;
+    private List<tbCongViec> filteredCongViecs = new List<tbCongViec>();
+    private string searchTerm = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            Loadcongviecs(); // Tải danh sách công việc khi khởi tạo trang
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Có lỗi xảy ra khi tải dữ liệu: " + ex.Message; // Xử lý lỗi khi tải dữ liệu
+        }
+    }
+
+    private void Loadcongviecs()
+    {
+        congviecs = dbcontext.tbCongViecs.ToList(); // Lấy dữ liệu công việc từ cơ sở dữ liệu
+        FilterCongViecs(); // Cập nhật danh sách đã lọc
+    }
+
+    // Hiển thị dialog thêm công việc mới
+    private void ShowAddCongViecDialog()
+    {
+        currentCongViec = new tbCongViec(); // Tạo một công việc mới
+        isEditMode = false; // Đặt chế độ là thêm mới
+        isDialogVisible = true; // Hiển thị dialog
+    }
+    private void SaveCongViec()
+    {
+        // Thêm công việc mới vào cơ sở dữ liệu
+        dbcontext.tbCongViecs.Add(currentCongViec);
+        dbcontext.SaveChanges(); // Lưu thay đổi vào cơ sở dữ liệu
+        isDialogVisible = false; // Ẩn dialog
+        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thông Báo", Detail = "Bạn Đã Thêm Thành Công", Duration = 4000 });
+        Loadcongviecs(); // Tải lại danh sách công việc
+    }
+
+    // Xác nhận việc xóa công việc
+    private void ConfirmDelete(tbCongViec congviec)
+    {
+        congviecToDelete = congviec; // Lưu công việc cần xóa
+        isDeleteDialogVisible = true; // Hiển thị dialog xác nhận xóa
+    }
+
+    // Thực hiện xóa công việc
+    private void DeleteConfirmed()
+    {
+        if (congviecToDelete != null)
+        {
+            dbcontext.tbCongViecs.Remove(congviecToDelete); // Xóa công việc
+            dbcontext.SaveChanges(); // Lưu thay đổi vào cơ sở dữ liệu
+            Loadcongviecs(); // Tải lại danh sách công việc
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thông Báo", Detail = "Bạn Đã Xóa Thành Công", Duration = 4000 });
+        }
+        isDeleteDialogVisible = false; // Ẩn dialog xác nhận
+    }
+
+    // Hủy bỏ thao tác xóa
+    private void CancelDelete()
+    {
+        isDeleteDialogVisible = false; // Ẩn dialog xác nhận
+    }
+
+    // Lưu công việc mới hoặc cập nhật công việc hiện tại
+    
+
+    // Điều hướng đến trang chi tiết công việc
+    private void NavigateToDetail(tbCongViec congviec)
+    {
+        NavigationManager.NavigateTo($"/detail/{congviec.IdCongViec}"); // Điều hướng với Id công việc
+    }
+
+    // Điều hướng đến trang chỉnh sửa công việc
+    private void EditCongViec(tbCongViec congviec)
+    {
+        NavigationManager.NavigateTo($"/edit/{congviec.IdCongViec}"); // Điều hướng với Id công việc
+    }
+
+    // Hủy bỏ chỉnh sửa công việc
+    private void CancelEdit()
+    {
+        isDialogVisible = false; // Ẩn dialog
+    }
+
+    // Xác nhận việc xóa
+    private bool ConfirmDelete()
+    {
+        return true; // Giả sử luôn xác nhận
+    }
+
+    // Hiện thông báo cho người dùng
+    void ShowNotification(NotificationMessage message)
+    {
+        NotificationService.Notify(message); // Gọi service để hiển thị thông báo
+    }
+    // Phương thức để lọc danh sách công việc theo từ khóa tìm kiếm
+    private void FilterCongViecs()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredCongViecs = congviecs; // Nếu không có từ khóa, hiển thị toàn bộ danh sách
+        }
+        else
+        {
+            filteredCongViecs = congviecs.Where(c =>
+                (c.TenCongViec != null && c.TenCongViec.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Description != null && c.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+        }
+    }
+
+    // Phương thức gọi khi thay đổi tìm kiếm
+    private void OnSearchChanged()
+    {
+        FilterCongViecs(); // Lọc danh sách khi thay đổi từ khóa
+    }
+
+    // Phương thức xóa tìm kiếm
+    private void ClearSearch()
+    {
+        searchTerm = string.Empty; // Xóa từ khóa tìm kiếm
+        FilterCongViecs(); // Hiển thị lại toàn bộ danh sách
+    }
+}

@@ -1,0 +1,230 @@
+﻿<style>
+    body {
+        background-color: #eef2f7; /* Màu nền cho toàn bộ trang */
+        font-family: Arial, sans-serif; /* Phông chữ cho trang */
+        padding: 0;
+        margin: 0; /* Bỏ padding và margin mặc định */
+    }
+
+    h1 {
+        text-align: center; /* Căn giữa tiêu đề */
+        color: #4f46e5; /* Màu chữ cho tiêu đề */
+        font-size: 2.5em; /* Kích thước chữ của tiêu đề */
+        font-weight: bold; /* Đậm chữ tiêu đề */
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng cho chữ */
+        margin-top: 20px; /* Khoảng cách phía trên tiêu đề */
+    }
+
+    p {
+        text-align: center; /* Căn giữa cho đoạn văn */
+        font-size: 12px; /* Kích thước chữ cho đoạn văn */
+        color: #555; /* Màu chữ cho đoạn văn */
+    }
+
+    .add-button {
+        display: flex; /* Hiển thị các nút trong một hàng */
+        justify-content: center; /* Căn giữa các nút */
+        margin: 20px 0; /* Khoảng cách phía trên và dưới */
+    }
+
+    .add-button RadzenButton {
+        font-size: 1.1em; /* Kích thước chữ cho nút */
+        padding: 10px 20px; /* Khoảng cách bên trong cho nút */
+        color: #ffffff; /* Màu chữ cho nút */
+        background: linear-gradient(145deg, #4f46e5, #3b82f6); /* Nền gradient cho nút */
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.3); /* Đổ bóng cho nút */
+        border-radius: 8px; /* Bo tròn các góc của nút */
+        transition: transform 0.3s, box-shadow 0.3s; /* Hiệu ứng chuyển đổi cho nút */
+    }
+
+    .add-button RadzenButton:hover {
+        transform: scale(1.05); /* Hiệu ứng phóng to khi hover */
+        box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.4), -5px -5px 12px rgba(255, 255, 255, 0.4); /* Đổ bóng mạnh hơn khi hover */
+    }
+
+    .detail-container {
+        max-width: 700px; /* Chiều rộng tối đa cho khung chi tiết */
+        margin: 20px auto; /* Căn giữa khung */
+        padding: 30px; /* Khoảng cách bên trong cho khung */
+        background: #ffffff; /* Màu nền cho khung */
+        border-radius: 10px; /* Bo tròn các góc của khung */
+        box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.1), -8px -8px 20px rgba(255, 255, 255, 0.5); /* Đổ bóng cho khung */
+    }
+
+    /* Tùy chỉnh RadzenDataGrid */
+    .custom-grid {
+        border-radius: 8px; /* Bo tròn các góc cho bảng dữ liệu */
+        overflow: hidden; /* Ẩn phần thừa ra ngoài */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng cho bảng dữ liệu */
+    }
+
+    /* Các hàng xen kẽ màu */
+    .rz-datagrid .rz-datagrid-data > tr:nth-child(even) {
+        background-color: #f9f9f9; /* Màu nền cho hàng chẵn */
+    }
+
+    .rz-datagrid .rz-datagrid-data > tr:nth-child(odd) {
+        background-color: #ffffff; /* Màu nền cho hàng lẻ */
+    }
+
+    /* Tùy chỉnh Dialog */
+    .dialog-container {
+        max-width: 600px; /* Chiều rộng tối đa cho hộp thoại */
+        margin: 20px auto; /* Căn giữa hộp thoại */
+        padding: 20px; /* Khoảng cách bên trong cho hộp thoại */
+        border: 1px solid #ddd; /* Đường viền cho hộp thoại */
+        border-radius: 8px; /* Bo tròn các góc của hộp thoại */
+        background-color: #ffffff; /* Màu nền cho hộp thoại */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng cho hộp thoại */
+        position: fixed; /* Đặt vị trí cố định */
+        top: 50%; /* Căn giữa theo chiều dọc */
+        left: 50%; /* Căn giữa theo chiều ngang */
+        transform: translate(-50%, -50%); /* Căn giữa chính xác */
+        width: 90%; /* Chiều rộng phản hồi */
+        padding: 20px; /* Khoảng cách bên trong cho hộp thoại */
+        border-radius: 12px; /* Bo tròn góc nhiều hơn */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Đổ bóng mềm mại */
+        z-index: 1001; /* Đảm bảo hộp thoại nằm trên lớp phủ */
+        animation: fadeIn 0.3s; /* Hiệu ứng xuất hiện */
+    }
+
+    .button-group {
+        display: flex; /* Hiển thị các nút trong một hàng */
+        justify-content: center; /* Căn giữa các nút */
+        gap: 15px; /* Khoảng cách giữa các nút */
+        margin-top: 20px; /* Khoảng cách từ trên xuống */
+    }
+
+    /* Nút thêm công việc */
+    .add-button {
+        text-align: center; /* Căn giữa cho nút thêm */
+        margin-top: 20px; /* Khoảng cách phía trên cho nút thêm */
+    }
+
+    .add-button RadzenButton {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Đổ bóng cho nút thêm */
+        transition: all 0.2s; /* Hiệu ứng chuyển đổi cho nút thêm */
+    }
+
+    .add-button RadzenButton:hover {
+        transform: scale(1.05); /* Hiệu ứng phóng to khi hover */
+        background-color: #0056b3; /* Thay đổi màu nền khi hover */
+    }
+
+    /* Styles for the delete dialog */
+    /* Styles for the overlay */
+    .dialog-overlay {
+        position: fixed; /* Đặt vị trí cố định cho lớp phủ */
+        top: 0; /* Đặt vị trí từ trên xuống */
+        left: 0; /* Đặt vị trí từ trái sang */
+        width: 100%; /* Chiều rộng 100% */
+        height: 100%; /* Chiều cao 100% */
+        background-color: rgba(0, 0, 0, 0.7); /* Nền tối cho lớp phủ */
+        z-index: 1000; /* Đảm bảo lớp phủ nằm trên tất cả các phần tử khác */
+        backdrop-filter: blur(5px); /* Thêm hiệu ứng làm mờ nền */
+        transition: opacity 0.3s ease; /* Hiệu ứng chuyển tiếp mờ dần */
+    }
+
+    /* Fade-in animation */
+    keyframes fadeIn {
+        from {
+            opacity: 0; /* Bắt đầu từ không thấy */
+            transform: translate(-50%, -40%); /* Bắt đầu hơi cao hơn */
+        }
+        to {
+            opacity: 1; /* Kết thúc với độ trong suốt 100% */
+            transform: translate(-50%, -50%); /* Vị trí giữa */
+        }
+    }
+
+    .dialog-box {
+        text-align: center; /* Căn giữa nội dung */
+        font-family: 'Arial', sans-serif; /* Phông chữ cho hộp thoại */
+    }
+
+    .dialog-box h2 {
+        margin: 0; /* Bỏ khoảng cách mặc định */
+        font-size: 1.5em; /* Kích thước chữ cho tiêu đề hộp thoại */
+        color: #333; /* Màu chữ cho tiêu đề hộp thoại */
+    }
+
+    .dialog-box p {
+        font-size: 1em; /* Kích thước chữ cho mô tả */
+        color: #555; /* Màu chữ cho mô tả */
+        margin: 10px 0; /* Khoảng cách trên và dưới cho mô tả */
+    }
+
+    .button-group {
+        display: flex; /* Hiển thị các nút trong một hàng */
+        justify-content: center; /* Căn giữa các nút */
+        gap: 15px; /* Khoảng cách giữa các nút */
+        margin-top: 20px; /* Khoảng cách từ trên xuống */
+    }
+
+    .button-group RadzenButton {
+        padding: 10px 20px; /* Khoảng cách bên trong cho nút */
+        border-radius: 8px; /* Bo tròn các góc cho nút */
+        font-size: 1em; /* Kích thước chữ cho nút */
+        transition: background-color 0.3s ease, transform 0.3s; /* Hiệu ứng chuyển đổi cho nút */
+    }
+
+    .button-group RadzenButton:hover {
+        transform: translateY(-2px); /* Di chuyển nhẹ lên trên khi hover */
+        background-color: #0056b3; /* Thay đổi màu nền khi hover */
+    }
+
+    .button-group RadzenButton.ButtonStyle.Danger:hover {
+        background-color: #c0392b; /* Màu đỏ cho nút xóa khi hover */
+    }
+
+    /* Additional styles for the Radzen buttons */
+    .add-button RadzenButton {
+        background: linear-gradient(145deg, #4f46e5, #3b82f6); /* Nền gradient cho nút thêm */
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.3); /* Đổ bóng cho nút thêm */
+        transition: transform 0.3s, box-shadow 0.3s; /* Hiệu ứng chuyển đổi cho nút thêm */
+        color: #ffffff; /* Màu chữ cho nút thêm */
+        border-radius: 8px; /* Bo tròn các góc cho nút thêm */
+    }
+
+    .add-button RadzenButton:hover {
+        transform: scale(1.05); /* Hiệu ứng phóng to khi hover */
+        box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.4), -5px -5px 12px rgba(255, 255, 255, 0.4); /* Đổ bóng mạnh hơn khi hover */
+    }
+    /* Kiểu cho thanh tìm kiếm */
+    .search-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .search-input {
+        width: 300px;
+        padding: 8px 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+        .search-input:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+            outline: none;
+        }
+
+    .clear-search-button {
+        margin-left: 10px;
+        padding: 8px 16px;
+        font-size: 14px;
+        border: none;
+        background-color: #f44336;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .clear-search-button:hover {
+            background-color: #d32f2f;
+        }
+</style>

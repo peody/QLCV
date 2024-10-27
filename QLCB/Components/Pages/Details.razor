@@ -1,0 +1,71 @@
+﻿@page "/detail/{id:int}"  
+<!-- Định nghĩa đường dẫn cho trang chi tiết, với id là một số nguyên -->
+@using QLCB.Models  <!-- Sử dụng mô hình dữ liệu từ QLCB.Models -->
+@inject dbQLCVContext dbcontext  
+<!-- Inject dịch vụ dbQLCVContext để truy cập cơ sở dữ liệu -->
+@inject NavigationManager NavigationManager  
+<!-- Inject NavigationManager để điều hướng -->
+@rendermode InteractiveServer  
+<!-- Chỉ định chế độ hiển thị cho trang -->
+
+<!-- Sử dụng component CSS cho trang chi tiết -->
+<QLCB.Components.Pages.Style.DetailStyles></QLCB.Components.Pages.Style.DetailStyles>
+
+<h3>Chi tiết Công Việc</h3>
+
+<div class="detail-container"> <!-- Container để hiển thị thông tin chi tiết -->
+    @if (congviec != null)  
+    
+    {
+        <div class="detail-card"> <!-- Card chứa thông tin chi tiết của công việc -->
+            <p><strong>STT:</strong> @congviec.IdCongViec</p> <!-- Hiển thị ID công việc -->
+            <p><strong>Công Việc:</strong> @congviec.TenCongViec</p> <!-- Hiển thị tên công việc -->
+            <p><strong>Bắt Đầu:</strong> @congviec.NgayBD.ToShortDateString()</p> <!-- Hiển thị ngày bắt đầu -->
+            <p><strong>Kết Thúc:</strong> @congviec.NgayKT.ToShortDateString()</p> <!-- Hiển thị ngày kết thúc -->
+            <p><strong>Số Ngày Còn Lại:</strong> @GetDaysRemaining(congviec.NgayKT)</p> <!-- Hiển thị số ngày còn lại -->
+            <p><strong>Mô Tả:</strong> @congviec.Description</p> <!-- Hiển thị mô tả công việc -->
+        </div>
+    }
+    else
+    {
+        <p>Đang tải thông tin công việc...</p> <!-- Thông báo khi đang tải dữ liệu -->
+    }
+</div>
+
+<!-- Nút để quay lại trang chính -->
+<button class="back-button" @onclick="NavigateHome">Trở lại Trang Chính</button>
+
+@code {
+    [Parameter]
+    public int id { get; set; }  <!-- Biến để nhận ID công việc từ URL -->
+
+    private tbCongViec congviec;  <!-- Biến để lưu công việc hiện tại -->
+
+    // Phương thức này được gọi khi trang được khởi tạo
+    protected override void OnInitialized()
+    {
+        LoadCongViec();  // Gọi phương thức để tải công việc
+    }
+
+    // Phương thức tính số ngày còn lại cho công việc
+    private int GetDaysRemaining(DateTime? ngayKT)
+    {
+        if (ngayKT.HasValue)  // Kiểm tra nếu ngày kết thúc có giá trị
+        {
+            return (ngayKT.Value - DateTime.Now).Days;  // Tính số ngày còn lại
+        }
+        return 0; // Nếu Ngày Kết Thúc không có giá trị, trả về 0
+    }
+
+    // Phương thức để tải công việc từ cơ sở dữ liệu
+    private void LoadCongViec()
+    {
+        congviec = dbcontext.tbCongViecs.FirstOrDefault(cv => cv.IdCongViec == id); // Tìm công việc theo ID
+    }
+
+    // Phương thức để điều hướng về trang chính
+    private void NavigateHome()
+    {
+        NavigationManager.NavigateTo("/"); // Điều hướng về trang Home
+    }
+}

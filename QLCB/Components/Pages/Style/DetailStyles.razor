@@ -1,0 +1,90 @@
+﻿<style>
+    /* Đặt kiểu cho toàn bộ trang */
+    body {
+        background-color: #eef2f7; /* Màu nền cho trang */
+        font-family: 'Arial', sans-serif; /* Font chữ chính */
+        padding: 0; /* Bỏ padding */
+        margin: 0; /* Bỏ margin */
+    }
+
+    /* Container chính cho phần chi tiết công việc */
+    .detail-container {
+        max-width: 650px; /* Chiều rộng tối đa của container */
+        margin: 40px auto; /* Căn giữa và thêm khoảng cách trên/dưới */
+        padding: 30px; /* Padding bên trong container */
+        border-radius: 15px; /* Bo tròn các góc */
+        background: linear-gradient(145deg, #d1d9e6, #ffffff); /* Nền gradient */
+        box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2), -8px -8px 20px rgba(255, 255, 255, 0.5); /* Đổ bóng cho container */
+        transition: all 0.3s ease-in-out; /* Hiệu ứng chuyển tiếp cho mọi thay đổi */
+    }
+
+    /* Card hiển thị thông tin chi tiết công việc */
+    .detail-card {
+        padding: 20px; /* Padding bên trong card */
+        margin-bottom: 20px; /* Khoảng cách dưới card */
+        border-radius: 12px; /* Bo tròn các góc */
+        background: linear-gradient(145deg, #ffffff, #d4e1f5); /* Nền gradient cho card */
+        box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.15), -10px -10px 20px rgba(255, 255, 255, 0.5); /* Đổ bóng cho card */
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hiệu ứng chuyển tiếp cho card */
+    }
+
+        /* Hiệu ứng hover cho card */
+        .detail-card:hover {
+            transform: translateY(-5px); /* Di chuyển card lên khi hover */
+            box-shadow: 12px 12px 25px rgba(0, 0, 0, 0.3), -12px -12px 25px rgba(255, 255, 255, 0.6); /* Đổ bóng sâu hơn khi hover */
+        }
+
+    /* Kiểu cho tiêu đề h3 */
+    h3 {
+        text-align: center; /* Căn giữa tiêu đề */
+        color: #3b82f6; /* Màu chữ */
+        font-size: 2em; /* Kích thước chữ */
+        font-weight: 700; /* Đậm chữ */
+        margin-bottom: 25px; /* Khoảng cách dưới tiêu đề */
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* Đổ bóng cho chữ */
+    }
+
+    /* Kiểu cho đoạn văn p */
+    p {
+        font-size: 1.1em; /* Kích thước chữ */
+        color: #1f2937; /* Màu chữ */
+        line-height: 1.75; /* Khoảng cách dòng */
+        font-weight: 500; /* Độ đậm chữ */
+    }
+
+    /* Kiểu cho các thẻ strong */
+    strong {
+        color: #111827; /* Màu chữ cho thẻ strong */
+        font-weight: 700; /* Đậm chữ */
+    }
+
+    /* Kiểu cho nút quay lại */
+    .back-button {
+        display: block; /* Hiển thị nút dưới dạng block */
+        margin: 30px auto; /* Căn giữa và thêm khoảng cách trên/dưới */
+        padding: 12px 40px; /* Padding cho nút */
+        font-size: 1.1em; /* Kích thước chữ */
+        font-weight: bold; /* Đậm chữ */
+        color: #ffffff; /* Màu chữ */
+        background: linear-gradient(145deg, #4f46e5, #3b82f6); /* Nền gradient */
+        border: none; /* Bỏ viền */
+        border-radius: 10px; /* Bo tròn các góc */
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3), -5px -5px 15px rgba(255, 255, 255, 0.2); /* Đổ bóng cho nút */
+        cursor: pointer; /* Con trỏ chuột khi hover trên nút */
+        transition: background 0.3s, box-shadow 0.3s, transform 0.2s; /* Hiệu ứng chuyển tiếp cho các thuộc tính */
+    }
+
+        /* Hiệu ứng hover cho nút quay lại */
+        .back-button:hover {
+            background: linear-gradient(145deg, #3b82f6, #4f46e5); /* Đổi màu nền khi hover */
+            transform: translateY(-4px); /* Di chuyển nút lên khi hover */
+            box-shadow: 8px 8px 18px rgba(0, 0, 0, 0.4), -8px -8px 18px rgba(255, 255, 255, 0.25); /* Đổ bóng sâu hơn khi hover */
+        }
+
+        /* Hiệu ứng focus cho nút quay lại */
+        .back-button:focus {
+            outline: none; /* Bỏ viền focus */
+            background: linear-gradient(145deg, #3b82f6, #2563eb); /* Đổi màu nền khi focus */
+            box-shadow: 0px 0px 10px rgba(59, 130, 246, 0.6); /* Đổ bóng khi focus */
+        }
+</style>

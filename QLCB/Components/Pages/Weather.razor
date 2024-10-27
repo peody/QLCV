@@ -1,0 +1,78 @@
+﻿@page "/weather"
+@attribute [StreamRendering]
+<QLCB.Components.Pages.Style.WeatherStyles></QLCB.Components.Pages.Style.WeatherStyles>
+<PageTitle>Thời Tiết Tại Hà Nội</PageTitle>
+
+<h1>Thời Tiết Tại Hà Nội</h1>
+
+<p>Đây là thời tiết trong thời gian tới tại Hà Nội</p>
+
+@if (forecasts == null)
+{
+    <p><em>Đang tải...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ngày</th>
+                <th>Độ (C)</th>
+                <th>Độ (F)</th>
+                <th>Cảm Giác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] {
+            "Nắng",
+            "Có mây",
+            "Mưa nhỏ",
+            "Mưa to",
+            "Nhiệt độ cao",
+            "Nhiệt độ thấp",
+            "Đông",
+            "Hạ",
+            "Mát mẻ",
+            "Khô ráo"
+        };
+
+        // Mô phỏng dữ liệu thời tiết cho 5 ngày tới
+        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = startDate.AddDays(index),
+                TemperatureC = Random.Shared.Next(15, 35), // Giả lập nhiệt độ từ 15 đến 35 độ C
+                Summary = summaries[Random.Shared.Next(summaries.Length)]
+            }).ToArray();
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556); // Chuyển đổi C sang F
+    }
+}

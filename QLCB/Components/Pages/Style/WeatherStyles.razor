@@ -1,0 +1,89 @@
+﻿<style>
+     body {
+         background-color: #eef2f7;
+         font-family: Arial, sans-serif;
+         padding: 0;
+         margin: 0;
+     }
+
+     h1 {
+         text-align: center;
+         color: #4f46e5;
+         font-size: 2.5em;
+         font-weight: bold;
+         text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+         margin-top: 20px;
+     }
+     i {
+         padding-right: 5px;
+     }
+     p {
+         text-align: center;
+         font-size: 12px;
+         color: #555;
+     }
+
+     .table {
+         width: 100%;
+         max-width: 700px; /* Giới hạn chiều rộng bảng */
+         margin: 20px auto; /* Căn giữa bảng */
+         border-radius: 10px; /* Góc bo tròn */
+         overflow: hidden; /* Ẩn các phần nhô ra */
+         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Đổ bóng xung quanh */
+         perspective: 1000px; /* Thiết lập phối cảnh */
+         background-color: #ffffff; /* Màu nền cho bảng */
+     }
+
+     thead {
+         background: linear-gradient(145deg, #4f46e5, #3b82f6); /* Nền gradient cho tiêu đề bảng */
+         color: #ffffff; /* Màu chữ trắng */
+         text-align: center; /* Căn giữa chữ trong tiêu đề */
+     }
+
+     th, td {
+         padding: 12px; /* Khoảng cách giữa nội dung và viền ô */
+         text-align: center; /* Căn giữa chữ trong ô */
+         transition: transform 0.2s ease, background-color 0.2s ease; /* Hiệu ứng chuyển động */
+     }
+
+     tr:hover {
+         transform: translateZ(10px); /* Hiệu ứng 3D khi di chuột qua hàng */
+         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Đổ bóng mạnh hơn khi di chuột */
+     }
+
+     td {
+         background-color: #f9f9f9; /* Màu nền cho ô */
+         border-bottom: 1px solid #ddd; /* Đường viền dưới ô */
+     }
+
+     /* Thay đổi màu cho các hàng xen kẽ */
+     tr:nth-child(even) td {
+         background-color: #ffffff; /* Màu nền cho hàng chẵn */
+     }
+
+     tr:nth-child(odd) td {
+         background-color: #f2f2f2; /* Màu nền cho hàng lẻ */
+     }
+
+     /* Hiệu ứng cho các nút */
+     .add-button {
+         display: flex;
+         justify-content: center;
+         margin: 20px 0;
+     }
+
+     .add-button RadzenButton {
+         font-size: 1.1em;
+         padding: 10px 20px;
+         color: #ffffff;
+         background: linear-gradient(145deg, #4f46e5, #3b82f6);
+         box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.3);
+         border-radius: 8px;
+         transition: transform 0.3s, box-shadow 0.3s;
+     }
+
+     .add-button RadzenButton:hover {
+         transform: scale(1.05);
+         box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.4), -5px -5px 12px rgba(255, 255, 255, 0.4);
+     }
+</style>

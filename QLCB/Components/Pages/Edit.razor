@@ -1,0 +1,94 @@
+﻿@page "/edit/{id:int}"
+@using QLCB.Models
+@inject dbQLCVContext dbcontext
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@inject NotificationService NotificationService
+@using Helpers
+<QLCB.Components.Pages.Style.EditStyles></QLCB.Components.Pages.Style.EditStyles>
+
+<div class="container">
+    <h3>Chỉnh Sửa Công Việc</h3>
+
+    <div class="form-group">
+        <label>Tên Công Việc</label>
+        <RadzenTextBox @bind-Value="currentCongViec.TenCongViec" Placeholder="Tên Công Việc" />
+    </div>
+    <div class="form-group">
+        <label>Ngày Bắt Đầu</label>
+        <RadzenDatePicker @bind-Value="currentCongViec.NgayBD" Placeholder="Ngày Bắt Đầu" />
+    </div>
+    <div class="form-group">
+        <label>Ngày Kết Thúc</label>
+        <RadzenDatePicker @bind-Value="currentCongViec.NgayKT" Placeholder="Ngày Kết Thúc" />
+    </div>
+    <div class="form-group">
+        <label>Mô Tả</label>
+        <RadzenTextArea @bind-Value="currentCongViec.Description" Placeholder="Mô Tả" />
+    </div>
+
+    <div class="button-container">
+        <RadzenButton Text="Lưu"
+                      ButtonStyle="ButtonStyle.Success"
+                      Click="@SaveCongViec" />
+        <RadzenButton Click="CancelEdit" Text="Hủy" ButtonStyle="ButtonStyle.Secondary" />
+    </div>
+</div>
+
+@code {
+    // Tham số để nhận id của công việc từ URL
+    [Parameter]
+    public int id { get; set; }
+    
+    // Biến để lưu thông tin công việc hiện tại
+    private tbCongViec currentCongViec = new tbCongViec();
+
+    // Hàm khởi tạo, được gọi khi component được khởi tạo
+    protected override void OnInitialized()
+    {
+        LoadCongViec(); // Tải thông tin công việc từ cơ sở dữ liệu
+    }
+
+    // Hàm tải thông tin công việc dựa trên id
+    private void LoadCongViec()
+    {
+        currentCongViec = dbcontext.tbCongViecs.FirstOrDefault(cv => cv.IdCongViec == id);
+    }
+
+    // Hàm lưu công việc sau khi chỉnh sửa
+    private void SaveCongViec()
+    {
+        var existingCongViec = dbcontext.tbCongViecs.Find(currentCongViec.IdCongViec);
+        if (existingCongViec != null)
+        {
+            // Cập nhật thông tin công việc
+            existingCongViec.TenCongViec = currentCongViec.TenCongViec;
+            existingCongViec.NgayBD = currentCongViec.NgayBD;
+            existingCongViec.NgayKT = currentCongViec.NgayKT;
+            existingCongViec.Description = currentCongViec.Description; // Cập nhật mô tả
+            dbcontext.SaveChanges(); // Lưu thay đổi vào cơ sở dữ liệu
+
+            // Hiển thị thông báo thành công
+            ShowNotification(new NotificationMessage 
+            { 
+                Severity = NotificationSeverity.Success, 
+                Summary = "Thông Báo", 
+                Detail = "Bạn Đã Chỉnh Sửa Thành Công", 
+                Duration = 4000 
+            });
+        }
+        NavigationManager.NavigateTo("/"); // Quay lại trang danh sách
+    }
+
+    // Hàm hủy chỉnh sửa và quay lại trang danh sách
+    private void CancelEdit()
+    {
+        NavigationManager.NavigateTo("/"); // Quay lại trang danh sách
+    }
+
+    // Hàm hiển thị thông báo
+    void ShowNotification(NotificationMessage message)
+    {
+        NotificationService.Notify(message);
+    }
+}
