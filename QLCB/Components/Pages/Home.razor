@@ -30,13 +30,26 @@
 </div>
 
 <!-- Grid hiển thị danh sách công việc -->
-<RadzenDataGrid @ref="dataGrid" Data="@filteredCongViecs" TItem="tbCongViec" ColumnWidth="200px" AllowPaging="true" PageSize="3">
-
+<RadzenDataGrid @ref="dataGrid" Data="@filteredCongViecs" TItem="tbCongViec" ColumnWidth="200px" AllowPaging="true" PageSize="3" >
     <Columns>
         <RadzenDataGridColumn TItem="tbCongViec" Property="IdCongViec" Title="STT" Width="50px" />
         <RadzenDataGridColumn TItem="tbCongViec" Property="TenCongViec" Title="Công Việc" Width="100px" />
-        <RadzenDataGridColumn TItem="tbCongViec" Property="NgayBD" Title="Bắt Đầu" Width="200px" />
-        <RadzenDataGridColumn TItem="tbCongViec" Property="NgayKT" Title="Kết Thúc" Width="200px" />
+        <RadzenDataGridColumn TItem="tbCongViec" Property="NgayBD" Title="Bắt Đầu" Width="150px" />
+        <RadzenDataGridColumn TItem="tbCongViec" Property="NgayKT" Title="Kết Thúc" Width="150px" />
+        <RadzenDataGridColumn  Width="25px">
+            <Template>
+                @{
+                    var congviec = (tbCongViec)context;
+                }
+                <RadzenCheckBox @bind-Value="congviec.Status"
+                                Change="@((bool args) =>
+                {
+                    congviec.Status = args;
+                    OnStatusChange(congviec);
+                })" />
+
+            </Template>
+        </RadzenDataGridColumn>
 
         <!-- Cột Hành Động chứa các nút tương tác -->
         <RadzenDataGridColumn Title="Hành Động">
@@ -292,4 +305,11 @@
         searchTerm = string.Empty; // Xóa từ khóa tìm kiếm
         FilterCongViecsDate(); // Hiển thị lại toàn bộ danh sách
     }
+    // Phương thức xử lý thay đổi trạng thái checkbox
+    private void OnStatusChange(tbCongViec congviec)
+    {
+        // Có thể lưu trạng thái vào cơ sở dữ liệu nếu cần
+        dbcontext.SaveChanges();
+    }
+
 }

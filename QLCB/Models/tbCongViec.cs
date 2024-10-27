@@ -18,5 +18,6 @@ namespace QLCB.Models
         public DateTime NgayBD { get; set; }
         public DateTime NgayKT { get; set; }
         public string Description { get; set; }
+        public bool Status { get; set; }
     }
 }
