@@ -9,14 +9,29 @@
 <QLCB.Components.Pages.Style.HomeStyles></QLCB.Components.Pages.Style.HomeStyles>
 
 <h1>Danh Sách Các Việc Cần Làm</h1>
-<p style="font-size : 10px;"><b>Không Có Ngày Tháng Nghĩa Là Ngày Nào Cũng Làm !!!</b></p>
+<p style="font-size: 10px;"><b>Không Có Ngày Tháng Nghĩa Là Ngày Nào Cũng Làm !!!</b></p>
+
+<!-- Khung tìm kiếm công việc -->
 <div class="search-container">
     <RadzenTextBox @bind-Value="searchTerm" Placeholder="Tìm kiếm công việc..." class="search-input" Style="width: 300px;" Change="OnSearchChanged" />
     <RadzenButton Text="Xóa Tìm Kiếm" ButtonStyle="ButtonStyle.Light" Click="@ClearSearch" class="clear-search-button" />
 </div>
+
+<!-- Khung lọc công việc theo ngày -->
+<div class="filter-container" style="margin: 10px;">
+    <label for="start-date">Bắt Đầu:</label>
+    <RadzenDatePicker @bind-Value="startDate" Style="width: 200px;" Change="OnFilterChanged" />
+
+    <label for="end-date">Kết Thúc:</label>
+    <RadzenDatePicker @bind-Value="endDate" Style="width: 200px;" Change="OnFilterChanged" />
+
+    <RadzenButton Text="Lọc" ButtonStyle="ButtonStyle.Primary" Click="OnFilterChanged" />
+    <RadzenButton Text="Xóa Lọc" ButtonStyle="ButtonStyle.Light" Click="ClearFilters" />
+</div>
+
 <!-- Grid hiển thị danh sách công việc -->
-<RadzenDataGrid @ref="dataGrid" Data="@filteredCongViecs" TItem="tbCongViec" ColumnWidth="200px" AllowPaging="true" PageSize="5">
-    
+<RadzenDataGrid @ref="dataGrid" Data="@filteredCongViecs" TItem="tbCongViec" ColumnWidth="200px" AllowPaging="true" PageSize="3">
+
     <Columns>
         <RadzenDataGridColumn TItem="tbCongViec" Property="IdCongViec" Title="STT" Width="50px" />
         <RadzenDataGridColumn TItem="tbCongViec" Property="TenCongViec" Title="Công Việc" Width="100px" />
@@ -111,9 +126,15 @@
     private tbCongViec congviecToDelete;
     // Biến để theo dõi trạng thái của dialog xác nhận xóa
     private bool isDeleteDialogVisible = false;
+    // Danh sách công việc đã lọc
     private List<tbCongViec> filteredCongViecs = new List<tbCongViec>();
+    // Từ khóa tìm kiếm
     private string searchTerm = string.Empty;
+    // Biến lưu trữ ngày bắt đầu và kết thúc để lọc
+    private DateTime? startDate;
+    private DateTime? endDate;
 
+    // Phương thức khởi tạo, tải danh sách công việc
     protected override void OnInitialized()
     {
         try
@@ -126,6 +147,7 @@
         }
     }
 
+    // Tải danh sách công việc từ cơ sở dữ liệu
     private void Loadcongviecs()
     {
         congviecs = dbcontext.tbCongViecs.ToList(); // Lấy dữ liệu công việc từ cơ sở dữ liệu
@@ -139,10 +161,11 @@
         isEditMode = false; // Đặt chế độ là thêm mới
         isDialogVisible = true; // Hiển thị dialog
     }
+
+    // Lưu công việc mới vào cơ sở dữ liệu
     private void SaveCongViec()
     {
-        // Thêm công việc mới vào cơ sở dữ liệu
-        dbcontext.tbCongViecs.Add(currentCongViec);
+        dbcontext.tbCongViecs.Add(currentCongViec); // Thêm công việc mới vào cơ sở dữ liệu
         dbcontext.SaveChanges(); // Lưu thay đổi vào cơ sở dữ liệu
         isDialogVisible = false; // Ẩn dialog
         ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thông Báo", Detail = "Bạn Đã Thêm Thành Công", Duration = 4000 });
@@ -175,9 +198,6 @@
         isDeleteDialogVisible = false; // Ẩn dialog xác nhận
     }
 
-    // Lưu công việc mới hoặc cập nhật công việc hiện tại
-    
-
     // Điều hướng đến trang chi tiết công việc
     private void NavigateToDetail(tbCongViec congviec)
     {
@@ -196,17 +216,12 @@
         isDialogVisible = false; // Ẩn dialog
     }
 
-    // Xác nhận việc xóa
-    private bool ConfirmDelete()
-    {
-        return true; // Giả sử luôn xác nhận
-    }
-
     // Hiện thông báo cho người dùng
     void ShowNotification(NotificationMessage message)
     {
         NotificationService.Notify(message); // Gọi service để hiển thị thông báo
     }
+
     // Phương thức để lọc danh sách công việc theo từ khóa tìm kiếm
     private void FilterCongViecs()
     {
@@ -234,5 +249,47 @@
     {
         searchTerm = string.Empty; // Xóa từ khóa tìm kiếm
         FilterCongViecs(); // Hiển thị lại toàn bộ danh sách
+    }
+
+    // Phương thức để lọc danh sách công việc theo ngày
+    private void FilterCongViecsDate()
+    {
+        filteredCongViecs = congviecs; // Bắt đầu với toàn bộ danh sách công việc
+
+        // Lọc theo từ khóa tìm kiếm
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredCongViecs = filteredCongViecs.Where(c =>
+                (c.TenCongViec != null && c.TenCongViec.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Description != null && c.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+        }
+
+        // Lọc theo ngày bắt đầu
+        if (startDate.HasValue)
+        {
+            filteredCongViecs = filteredCongViecs.Where(c => c.NgayBD >= startDate.Value).ToList();
+        }
+
+        // Lọc theo ngày kết thúc
+        if (endDate.HasValue)
+        {
+            filteredCongViecs = filteredCongViecs.Where(c => c.NgayKT <= endDate.Value).ToList();
+        }
+    }
+
+    // Phương thức gọi khi thay đổi bộ lọc
+    private void OnFilterChanged()
+    {
+        FilterCongViecsDate(); // Lọc danh sách khi thay đổi từ khóa hoặc ngày
+    }
+
+    // Phương thức xóa bộ lọc
+    private void ClearFilters()
+    {
+        startDate = null; // Đặt lại ngày bắt đầu
+        endDate = null; // Đặt lại ngày kết thúc
+        searchTerm = string.Empty; // Xóa từ khóa tìm kiếm
+        FilterCongViecsDate(); // Hiển thị lại toàn bộ danh sách
     }
 }
